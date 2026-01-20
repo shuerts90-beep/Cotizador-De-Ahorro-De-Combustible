@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotizador de Ahorro de Combustible</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* PORTADA */
+    .portada {
+      width: 100%;
+      height: 260px;
+      overflow: hidden;
+    }
+
+    .portada img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e2a5a;
+      margin: 15px 0 10px;
+    }
+
+    p.sub {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+      padding: 0 10px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .nota-roja {
+      font-size: 13px;
+      color: #c62828;
+      margin-top: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .resultado {
+      background: #e8f5e9;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .resultado.azul {
+      background: #e3f2fd;
+    }
+
+    @media (max-width: 768px) {
+      .portada {
+        height: 180px;
+      }
+
+      h1 {
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PORTADA -->
+  <div class="portada">
+    <img src="portada nueva.png" alt="Portada cotizador de combustible">
+  </div>
+
+  <h1>Cotizador de Ahorro de Combustible</h1>
+  <p class="sub">
+    Ingresá los datos y calculá automáticamente el ahorro mensual
+    y en cuántos meses cubrís un tanque propio.
+  </p>
+
+  <div class="container">
+
+    <!-- PRECIOS -->
+    <div class="section">
+      <h3>Datos de precios</h3>
+
+      <label>Precio Diesel surtidor</label>
+      <input type="number" id="surtidor" oninput="recalcular()">
+      <div class="nota-roja">
+        La Pampa, Mendoza y la Patagonia cuentan con una quita en el ICL del 45% (equiv. $90)
+      </div>
+
+      <label>Precio Diesel mayorista</label>
+      <input type="number" id="mayorista" oninput="recalcular()">
+
+      <label>Diferencia por litro</label>
+      <div class="resultado" id="dif">$ 0</div>
+    </div>
+
+    <!-- CONSUMO -->
+    <div class="section">
+      <h3>Consumo</h3>
+
+      <label>Kilómetros mensuales por camión</label>
+      <input type="number" id="km" oninput="recalcular()">
+
+      <label>Cantidad de camiones</label>
+      <input type="number" id="unidades" oninput="recalcular()">
+
+      <label>Consumo mensual por unidad</label>
+      <div class="resultado" id="consumoUnidad">0 litros</div>
+
+      <label>Consumo total</label>
+      <div class="resultado" id="consumoTotal">0 litros</div>
+    </div>
+
+    <!-- AHORRO -->
+    <div class="section">
+      <h3>Ahorro</h3>
+
+      <label>Ahorro mensual estimado</label>
+      <div class="resultado" id="ahorro">$ 0</div>
+    </div>
+
+    <!-- TANQUE -->
+    <div class="section">
+      <h3>Opción de tanque</h3>
+
+      <label>Seleccionar tanque</label>
+      <select id="precioTanque" oninput="recalcular()">
+        <option value="">Seleccione una opción</option>
+        <option value="13000000">10.000 litros – aprox. $13.000.000</option>
+        <option value="20000000">20.000 litros – aprox. $20.000.000</option>
+        <option value="55000000">30.000 litros – aprox. $55.000.000</option>
+      </select>
+
+      <div class="resultado azul" id="resultadoTanque">—</div>
+    </div>
+
+  </div>
+
+  <script>
+    function recalcular() {
+      const surtidor = Number(document.getElementById("surtidor").value) || 0;
+      const mayorista = Number(document.getElementById("mayorista").value) || 0;
+      const km = Number(document.getElementById("km").value) || 0;
+      const unidades = Number(document.getElementById("unidades").value) || 0;
+      const precioTanque = Number(document.getElementById("precioTanque").value) || 0;
+
+      const diferencia = surtidor - mayorista;
+      const consumoUnidad = (km / 100) * 45;
+      const consumoTotal = consumoUnidad * unidades;
+      const ahorro = consumoTotal * diferencia;
+
+      document.getElementById("dif").innerText =
+        "$ " + diferencia.toLocaleString("es-AR");
+
+      document.getElementById("consumoUnidad").innerText =
+        consumoUnidad.toFixed(0) + " litros";
+
+      document.getElementById("consumoTotal").innerText =
+        consumoTotal.toFixed(0) + " litros";
+
+      document.getElementById("ahorro").innerText =
+        "$ " + ahorro.toLocaleString("es-AR");
+
+      if (precioTanque > 0 && ahorro > 0) {
+        const meses = precioTanque / ahorro;
+        document.getElementById("resultadoTanque").innerText =
+          "Con este ahorro cubrís el tanque en " + meses.toFixed(1) + " meses";
+      } else {
+        document.getElementById("resultadoTanque").innerText = "—";
+      }
+    }
